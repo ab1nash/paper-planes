@@ -33,7 +33,7 @@ class Settings(BaseSettings):
     
     # Search settings
     DEFAULT_SEARCH_LIMIT: int = 10
-    SIMILARITY_THRESHOLD: float = 0.6
+    SIMILARITY_THRESHOLD: float = 0.2
     
     class Config:
         env_file = ".env"
