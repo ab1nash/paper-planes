@@ -10,7 +10,7 @@ services:
       - ./models:/app/models
     environment:
       - DEBUG=false
-      - CORS_ORIGINS=http://localhost:3000
+      - CORS_ORIGINS=["http://localhost:3000"]
     restart: unless-stopped
 
   frontend:
