@@ -110,4 +110,4 @@ package-lock.json
 backend/storage/vector_db/metadata.json
 backend/storage/papers/*.pdf
 
-backend/models/all-MiniLM-L6-v2
+backend/models
