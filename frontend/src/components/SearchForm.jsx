@@ -95,15 +95,13 @@ const SearchForm = ({ onSearch, isLoading }) => {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search for research papers..."
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-l-md focus:ring-blue-500 focus:border-blue-500 outline-none"
+            className="flex-1 px-4 py-2 bg-white text-black border border-gray-300 rounded-l-md"
             required
           />
           <button
             type="submit"
             disabled={isLoading}
-            className={`px-4 py-2 rounded-r-md bg-blue-600 text-white font-medium ${
-              isLoading ? 'opacity-70 cursor-not-allowed' : 'hover:bg-blue-700'
-            }`}
+            className="px-4 py-2 rounded-r-md bg-gray-600 text-white"
           >
             {isLoading ? 'Searching...' : 'Search'}
           </button>
@@ -113,7 +111,7 @@ const SearchForm = ({ onSearch, isLoading }) => {
           <button
             type="button"
             onClick={() => setShowFilters(!showFilters)}
-            className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center"
+            className="text-gray-600 text-sm font-medium flex items-center"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
@@ -125,7 +123,7 @@ const SearchForm = ({ onSearch, isLoading }) => {
             <button
               type="button"
               onClick={resetFilters}
-              className="text-gray-600 hover:text-gray-800 text-sm font-medium"
+              className="text-gray-600 text-sm font-medium"
             >
               Reset Filters
             </button>
@@ -145,7 +143,7 @@ const SearchForm = ({ onSearch, isLoading }) => {
                   placeholder="From"
                   value={filters.year_min}
                   onChange={(e) => handleFilterChange('year_min', e.target.value)}
-                  className="w-1/2 px-3 py-2 border border-gray-300 rounded-md text-sm"
+                  className="w-1/2 px-3 py-2 bg-white text-black border border-gray-300 rounded-md text-sm"
                   min="1900"
                   max="2030"
                 />
@@ -154,7 +152,7 @@ const SearchForm = ({ onSearch, isLoading }) => {
                   placeholder="To"
                   value={filters.year_max}
                   onChange={(e) => handleFilterChange('year_max', e.target.value)}
-                  className="w-1/2 px-3 py-2 border border-gray-300 rounded-md text-sm"
+                  className="w-1/2 px-3 py-2 bg-white text-black border border-gray-300 rounded-md text-sm"
                   min="1900"
                   max="2030"
                 />
@@ -172,14 +170,14 @@ const SearchForm = ({ onSearch, isLoading }) => {
                   placeholder="Conference"
                   value={filters.conference}
                   onChange={(e) => handleFilterChange('conference', e.target.value)}
-                  className="w-1/2 px-3 py-2 border border-gray-300 rounded-md text-sm"
+                  className="w-1/2 px-3 py-2 bg-white text-black border border-gray-300 rounded-md text-sm"
                 />
                 <input
                   type="text"
                   placeholder="Journal"
                   value={filters.journal}
                   onChange={(e) => handleFilterChange('journal', e.target.value)}
-                  className="w-1/2 px-3 py-2 border border-gray-300 rounded-md text-sm"
+                  className="w-1/2 px-3 py-2 bg-white text-black border border-gray-300 rounded-md text-sm"
                 />
               </div>
             </div>
@@ -194,7 +192,7 @@ const SearchForm = ({ onSearch, isLoading }) => {
                   type="text"
                   placeholder="Add author name"
                   id="author-input"
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-l-md text-sm"
+                  className="flex-1 px-3 py-2 bg-white text-black border border-gray-300 rounded-l-md text-sm"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       e.preventDefault();
@@ -210,7 +208,7 @@ const SearchForm = ({ onSearch, isLoading }) => {
                     addAuthorFilter(input.value);
                     input.value = '';
                   }}
-                  className="px-3 py-2 bg-gray-200 text-gray-800 rounded-r-md hover:bg-gray-300"
+                  className="px-3 py-2 bg-gray-200 text-gray-800 rounded-r-md"
                 >
                   Add
                 </button>
@@ -226,7 +224,7 @@ const SearchForm = ({ onSearch, isLoading }) => {
                       <button
                         type="button"
                         onClick={() => removeAuthorFilter(author)}
-                        className="ml-1 text-blue-500 hover:text-blue-700"
+                        className="ml-1 text-blue-500"
                       >
                         &times;
                       </button>
@@ -246,7 +244,7 @@ const SearchForm = ({ onSearch, isLoading }) => {
                   type="text"
                   placeholder="Add keyword"
                   id="keyword-input"
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-l-md text-sm"
+                  className="flex-1 px-3 py-2 bg-white text-black border border-gray-300 rounded-l-md text-sm"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       e.preventDefault();
@@ -262,7 +260,7 @@ const SearchForm = ({ onSearch, isLoading }) => {
                     addKeywordFilter(input.value);
                     input.value = '';
                   }}
-                  className="px-3 py-2 bg-gray-200 text-gray-800 rounded-r-md hover:bg-gray-300"
+                  className="px-3 py-2 bg-gray-200 text-gray-800 rounded-r-md"
                 >
                   Add
                 </button>
@@ -278,7 +276,7 @@ const SearchForm = ({ onSearch, isLoading }) => {
                       <button
                         type="button"
                         onClick={() => removeKeywordFilter(keyword)}
-                        className="ml-1 text-green-500 hover:text-green-700"
+                        className="ml-1 text-green-500"
                       >
                         &times;
                       </button>
