@@ -299,6 +299,35 @@ class TextExtractionService:
             return keywords
         
         return []
+    
+    def clean_extracted_text(self, text: str) -> str:
+        """Clean text extracted from PDFs with minimal processing for scalability.
+        
+        Args:
+            text: Raw text extracted from PDF
+            
+        Returns:
+            Cleaned text with basic normalization
+        """
+        import re
+        
+        if not text:
+            return ""
+        
+        # Replace literal '\n' strings with actual newlines
+        text = text.replace('\\n', '\n')
+        
+        # Single regex to fix the most critical spacing issues (after punctuation)
+        text = re.sub(r'([.,:;!?])([A-Za-z])', r'\1 \2', text)
+        
+        # Normalize whitespace (combine multiple spaces into one)
+        text = re.sub(r'\s+', ' ', text)
+        
+        # Preserve paragraph breaks by restoring double newlines
+        text = text.replace('\n \n', '\n\n')
+        
+        # Final trim
+        return text.strip()
 
 
 # Create a singleton instance

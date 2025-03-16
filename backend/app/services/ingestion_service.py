@@ -75,6 +75,8 @@ class IngestionService:
                     message="Failed to extract text from PDF."
                 )
             
+            text = text_extraction_service.clean_extracted_text(text)
+
             # Extract or use provided metadata
             metadata = custom_metadata
             if not metadata and extract_metadata:
