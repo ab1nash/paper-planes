@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import SearchForm from './components/SearchForm';
 import ResultList from './components/ResultList';
 import UploadForm from './components/UploadForm';
+import PaperList from './components/PaperList';
 import api from './services/api';
 
 /**
@@ -112,6 +113,15 @@ const App = () => {
             >
               Upload Papers
             </button>
+            <button
+              onClick={() => setActiveTab('manage')}
+              className={`${activeTab === 'manage'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+            >
+              Manage Papers
+            </button>
           </nav>
         </div>
         
@@ -172,13 +182,17 @@ const App = () => {
         {activeTab === 'upload' && (
           <UploadForm onUpload={handleUpload} isUploading={isUploading} />
         )}
+
+        {activeTab === 'manage' && (
+          <PaperList onDeleteSuccess={(message) => showNotification('success', message)} />
+        )}
       </main>
       
       {/* Footer */}
       <footer className="bg-white border-t border-gray-200 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <p className="text-center text-sm text-gray-500">
-            paper-planes - Offline Semantic Search and research paper storage.
+            paper-planes - 2025
           </p>
         </div>
       </footer>

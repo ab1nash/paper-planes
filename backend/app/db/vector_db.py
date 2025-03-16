@@ -29,6 +29,7 @@ class VectorDB:
         # Paths for storing index and metadata
         self.index_path = self.db_path / "faiss_index.bin"
         self.metadata_path = self.db_path / "metadata.json"
+        self.embeddings_path = self.db_path / "embeddings.npz"
         
         # Initialize or load the index and metadata
         self._load_or_create_index()
@@ -69,6 +70,10 @@ class VectorDB:
         # Ensure embedding is properly shaped
         if len(embedding.shape) == 1:
             embedding = embedding.reshape(1, -1)
+        
+        # Also save the raw embedding for rebuilding the index later
+        embeddings_file = self.db_path / f"{doc_id}_embedding.npy"
+        np.save(embeddings_file, embedding)
         
         # Add embedding to index
         self.index.add(embedding)
@@ -140,9 +145,6 @@ class VectorDB:
     def delete_document(self, doc_id: str) -> bool:
         """Delete a document from the database.
         
-        Note: This is a naive implementation that requires rebuilding the index.
-        In a production environment, you would use a more efficient approach.
-        
         Args:
             doc_id: Unique identifier for the document
             
@@ -163,27 +165,56 @@ class VectorDB:
             # ID not found in id_map
             pass
         
-        # Rebuild index (inefficient but simple)
-        # For production, consider using IDMap or other FAISS structures that support deletion
+        # Delete the saved embedding file
+        embedding_file = self.db_path / f"{doc_id}_embedding.npy"
+        if embedding_file.exists():
+            embedding_file.unlink()
+        
+        # Rebuild index
         self.rebuild_index()
         
         return True
     
     def rebuild_index(self) -> None:
-        """Rebuild the entire index from stored metadata.
+        """Rebuild the entire index from stored metadata and embeddings."""
+        print("Rebuilding vector index...")
         
-        This is useful after batch operations or to recover from corruption.
-        """
-        # This is a placeholder - in a real implementation, you would:
-        # 1. Extract all embeddings from wherever they're stored
-        # 2. Create a new index
-        # 3. Add all embeddings to the new index
-        # 4. Update the id_map accordingly
+        # Create a new index with the same dimension
+        dim = settings.EMBEDDING_DIMENSION
+        new_index = faiss.IndexFlatL2(dim)
         
-        # Here we simply note that rebuilding would be necessary
-        # In a real implementation, the embeddings should be stored separately
-        print("Index rebuilding would be performed here")
+        # Clear the id_map
+        new_id_map = []
+        
+        # Add each document back to the index
+        for doc_id in self.metadata["documents"]:
+            embedding_file = self.db_path / f"{doc_id}_embedding.npy"
+            
+            if embedding_file.exists():
+                # Load the embedding
+                embedding = np.load(embedding_file)
+                
+                # Ensure correct shape
+                if len(embedding.shape) == 1:
+                    embedding = embedding.reshape(1, -1)
+                
+                # Add to the new index
+                new_index.add(embedding)
+                
+                # Add to the new id_map
+                new_id_map.append(doc_id)
+            else:
+                print(f"Warning: Embedding file for document {doc_id} not found")
+        
+        # Replace the old index and id_map
+        self.index = new_index
+        self.metadata["id_map"] = new_id_map
+        self.metadata["last_updated"] = datetime.now().isoformat()
+        
+        # Save the updated state
         self._save_state()
+        
+        print(f"Index rebuilt with {len(new_id_map)} documents")
     
     def count_documents(self) -> int:
         """Get the total number of documents in the database."""

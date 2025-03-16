@@ -80,6 +80,21 @@ const api = {
   },
   
   /**
+   * Get a list of all papers
+   * @param {Object} [options] - Optional parameters
+   * @param {number} [options.limit=100] - Maximum number of results
+   * @param {number} [options.offset=0] - Pagination offset
+   * @returns {Promise<Object>} List of papers
+   */
+  listAllPapers: async (options = {}) => {
+    const limit = options.limit || 100;
+    const offset = options.offset || 0;
+
+    const response = await fetch(`${API_BASE_URL}/papers?limit=${limit}&offset=${offset}`);
+    return handleResponse(response);
+  },
+
+  /**
    * Delete a paper
    * @param {string} paperId - ID of the paper to delete
    * @returns {Promise<Object>} Delete result

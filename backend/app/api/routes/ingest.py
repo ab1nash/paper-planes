@@ -1,12 +1,38 @@
-from fastapi import APIRouter, UploadFile, File, Form, HTTPException, Depends
-from fastapi.responses import JSONResponse
-from typing import Optional
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException, Depends, Query
+from fastapi.responses import JSONResponse, FileResponse
+from typing import Optional, List
 import json
+import os
+from pydantic import BaseModel
 
 from app.core.models import PaperIngestionRequest, PaperIngestionResponse, PaperMetadata
 from app.services.ingestion_service import ingestion_service
+from app.db.metadata_db import metadata_db
 
 router = APIRouter(prefix="/papers", tags=["papers"])
+
+
+class PaperListResponse(BaseModel):
+    """Response model for listing papers."""
+
+    papers: List[dict]
+    total_count: int
+
+
+@router.get("", response_model=PaperListResponse)
+async def list_papers(
+    limit: int = Query(100, ge=1, le=1000), offset: int = Query(0, ge=0)
+):
+    """
+    List all papers in the system.
+
+    - **limit**: Maximum number of papers to return (default: 100, max: 1000)
+    - **offset**: Number of papers to skip for pagination (default: 0)
+    """
+    # Use empty filter to get all papers
+    papers, total_count = metadata_db.search_papers({}, limit=limit, offset=offset)
+
+    return PaperListResponse(papers=papers, total_count=total_count)
 
 
 @router.post("/upload", response_model=PaperIngestionResponse)
@@ -55,6 +81,33 @@ async def upload_paper(
     
     return result
 
+
+@router.get("/download/{paper_id}")
+async def download_paper(paper_id: str):
+    """
+    Download a paper by its ID.
+    
+    - **paper_id**: ID of the paper to download
+    """
+    # Get paper metadata
+    paper = metadata_db.get_paper(paper_id)
+    if not paper:
+        raise HTTPException(status_code=404, detail="Paper not found")
+    
+    # Get file path
+    file_path = paper.get('file_path')
+    if not file_path or not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="Paper file not found")
+    
+    # Get original filename
+    filename = paper.get('filename', os.path.basename(file_path))
+    
+    # Return the file
+    return FileResponse(
+        path=file_path,
+        filename=filename,
+        media_type="application/pdf"
+    )
 
 @router.delete("/{paper_id}")
 async def delete_paper(paper_id: str):

@@ -111,3 +111,7 @@ backend/storage/vector_db/metadata.json
 backend/storage/papers/*.pdf
 
 backend/models
+
+storage/vector_db
+
+*.npy
