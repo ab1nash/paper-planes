@@ -191,9 +191,22 @@ const App = () => {
       {/* Footer */}
       <footer className="bg-white border-t border-gray-200 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-center text-sm text-gray-500">
-            paper-planes - 2025
-          </p>
+          <div className="flex items-center justify-center">
+            <p className="text-sm text-gray-500 mr-3">
+              paper-planes - 2025
+            </p>
+            {/* Indian Flag Image */}
+            <div className="h-6 w-9 shadow-sm border border-gray-200 rounded overflow-hidden">
+              <img
+                src="https://flagcdn.com/h40/in.png"
+                width="100%"
+                height="100%"
+                alt="Flag of India"
+                className="object-fill"
+                style={{ aspectRatio: '3/2' }}
+              />
+            </div>
+          </div>
         </div>
       </footer>
     </div>
