@@ -10,7 +10,7 @@ from app.core.config import settings
 from app.core.models import PaperMetadata, PaperIngestionResponse
 from app.services.text_extraction import text_extraction_service
 from app.services.llm_service import llm_service
-from app.db.vector_db import vector_db
+from app.db.hybrid_vector_db import get_vector_db
 from app.db.metadata_db import metadata_db
 
 
@@ -94,7 +94,7 @@ class IngestionService:
             mean_embedding = np.mean(embeddings, axis=0)
 
             # Store in vector database
-            vector_db.add_document(
+            get_vector_db().add_document(
                 doc_id=paper_id,
                 embedding=mean_embedding,
                 metadata={
@@ -228,7 +228,7 @@ class IngestionService:
                 return False
 
             # Delete from vector DB
-            vector_db.delete_document(paper_id)
+            get_vector_db().delete_document(paper_id)
 
             # Delete from metadata DB
             metadata_db.delete_paper(paper_id)

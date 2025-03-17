@@ -9,3 +9,6 @@ huggingface_hub==0.12.1
 faiss-cpu==1.7.4
 numpy==1.25.2
 torch==2.0.1
+
+# Memory monitoring for adaptive indexing
+psutil==5.9.5

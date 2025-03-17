@@ -5,7 +5,7 @@ import numpy as np
 from app.core.config import settings
 from app.core.models import SearchRequest, SearchResponse, SearchResultItem, SearchFilter
 from app.services.llm_service import llm_service
-from app.db.vector_db import vector_db
+from app.db.hybrid_vector_db import get_vector_db
 from app.db.metadata_db import metadata_db
 
 
@@ -45,7 +45,7 @@ class SearchService:
             
             # Search vector database
             limit = search_request.limit or self.default_limit
-            vector_results = vector_db.search(
+            vector_results = get_vector_db().search(
                 query_embedding=query_embedding,
                 k=limit * 3,  # Get more results for filtering
                 threshold=self.similarity_threshold

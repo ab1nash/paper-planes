@@ -34,6 +34,14 @@ class Settings(BaseSettings):
     # Search settings
     DEFAULT_SEARCH_LIMIT: int = 10
     SIMILARITY_THRESHOLD: float = 0.2
+
+    # HNSW Vector DB settings
+    USE_HYBRID_VECTOR_DB: bool = True  # Set to True to enable hybrid indexing
+    MEMORY_THRESHOLD: float = 0.85      # Memory threshold to switch to flat indexing (0-1)
+    HNSW_M: int = 32                    # HNSW M parameter (connections per layer)
+    HNSW_EF_CONSTRUCTION: int = 200     # HNSW efConstruction parameter (build accuracy) 
+    HNSW_EF_SEARCH: int = 128           # HNSW efSearch parameter (search accuracy)
+    RERANK_SIZE: int = 30    
     
     class Config:
         env_file = ".env"
