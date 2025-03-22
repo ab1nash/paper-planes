@@ -118,7 +118,50 @@ const api = {
    */
   getPaperDownloadUrl: (paperId) => {
     return `${API_BASE_URL}/papers/download/${paperId}`;
+  },
+
+  // INDEX MANAGEMENT ============================= //
+  /**
+   * Rebuild the vector indexes
+   * @param {boolean} [useParagraphs=false] - Whether to rebuild paragraph-level indexes
+   * @returns {Promise<Object>} Result of the operation
+  */
+  rebuildIndexes: async (useParagraphs = false) => {
+    const response = await fetch(`${API_BASE_URL}/papers/rebuild-indexes?use_paragraphs=${useParagraphs}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+
+    return handleResponse(response);
+  },
+
+  /**
+   * Rollback to the previous index version
+   * @returns {Promise<Object>} Result of the operation
+  */
+  rollbackIndex: async () => {
+    const response = await fetch(`${API_BASE_URL}/papers/rollback-index`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+
+    return handleResponse(response);
+  },
+
+  /**
+   * Get index status (can be used to check if a backup exists)
+   * @returns {Promise<Object>} Index status information
+  */
+  getIndexStatus: async () => {
+    const response = await fetch(`${API_BASE_URL}/papers/index-status`);
+    return handleResponse(response);
   }
+  // INDEX MANAGEMENT ============================= //
+
 };
 
 export default api;

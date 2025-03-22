@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
+import IndexManagement from './IndexManagement';
 
-const PaperList = ({ onDeleteSuccess }) => {
+const PaperList = ({ onDeleteSuccess, onMessage }) => {
   const [papers, setPapers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -29,6 +30,24 @@ const PaperList = ({ onDeleteSuccess }) => {
     }
   };
   
+  // Handle successful operations
+  const handleSuccess = (message) => {
+    if (onMessage) {
+      onMessage({ type: 'success', message });
+    } else if (onDeleteSuccess) {
+      onDeleteSuccess(message);
+    }
+  };
+
+  // Handle errors
+  const handleError = (message) => {
+    if (onMessage) {
+      onMessage({ type: 'error', message });
+    } else {
+      setError(message);
+    }
+  };
+
   // Toggle paper selection
   const togglePaperSelection = (paperId) => {
     setSelectedPapers(prev => {
@@ -79,11 +98,9 @@ const PaperList = ({ onDeleteSuccess }) => {
       fetchPapers();
       
       // Notify parent component
-      if (onDeleteSuccess) {
-        onDeleteSuccess(`Successfully deleted ${selectedPapers.length} paper(s)`);
-      }
+      handleSuccess(`Successfully deleted ${selectedPapers.length} paper(s)`);
     } catch (err) {
-      setError(`Error deleting papers: ${err.message}`);
+      handleError(`Error deleting papers: ${err.message}`);
     } finally {
       setIsDeleting(false);
       setShowConfirmation(false);
@@ -107,146 +124,150 @@ const PaperList = ({ onDeleteSuccess }) => {
       </div>
     );
   }
-  
-  // Show error state
-  if (error) {
-    return (
-      <div className="bg-white shadow-md rounded-lg p-6 text-center">
-        <p className="text-red-500">{error}</p>
-        <button 
-          onClick={fetchPapers}
-          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-        >
-          Try Again
-        </button>
-      </div>
-    );
-  }
-  
-  // Show empty state
-  if (papers.length === 0) {
-    return (
-      <div className="bg-white shadow-md rounded-lg p-6 text-center">
-        <p className="text-gray-600">No papers have been uploaded yet.</p>
-      </div>
-    );
-  }
-  
+
   return (
-    <div className="bg-white shadow-md rounded-lg p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-lg font-medium">Manage Papers</h2>
-        <div className="flex space-x-4">
-          <button
-            onClick={toggleSelectAll}
-            className="px-3 py-1 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
-          >
-            {selectedPapers.length === papers.length ? 'Deselect All' : 'Select All'}
-          </button>
-          <button
-            onClick={handleDeleteClick}
-            disabled={selectedPapers.length === 0}
-            className={`px-3 py-1 rounded ${
-              selectedPapers.length === 0
+    <div>
+      {/* Index Management Section */}
+      <IndexManagement
+        onSuccess={handleSuccess}
+        onError={handleError}
+      />
+
+      <div className="bg-white shadow-md rounded-lg p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-lg font-medium">Manage Papers</h2>
+          <div className="flex space-x-4">
+            <button
+              onClick={toggleSelectAll}
+              className="px-3 py-1 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
+            >
+              {selectedPapers.length === papers.length ? 'Deselect All' : 'Select All'}
+            </button>
+            <button
+              onClick={handleDeleteClick}
+              disabled={selectedPapers.length === 0}
+              className={`px-3 py-1 rounded ${selectedPapers.length === 0
                 ? 'bg-red-300 cursor-not-allowed'
                 : 'bg-red-600 text-white hover:bg-red-700'
-            }`}
-          >
-            Delete Selected
-          </button>
+                }`}
+            >
+              Delete Selected
+            </button>
+          </div>
         </div>
-      </div>
-      
-      {/* Papers list */}
-      <div className="border rounded-lg overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Select
-              </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Title
-              </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Authors
-              </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Year
-              </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {papers.map((paper) => (
-              <tr key={paper.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <input
-                    type="checkbox"
-                    checked={selectedPapers.includes(paper.id)}
-                    onChange={() => togglePaperSelection(paper.id)}
-                    className="h-4 w-4 text-blue-600 rounded"
-                  />
-                </td>
-                <td className="px-6 py-4">
-                  <div className="text-sm font-medium text-gray-900">{paper.title}</div>
-                </td>
-                <td className="px-6 py-4">
-                  <div className="text-sm text-gray-500">{formatAuthors(paper.authors)}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-500">{paper.publication_year || 'Unknown'}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <a
-                    href={api.getPaperDownloadUrl(paper.id)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:text-blue-900 mr-4"
-                  >
-                    Download
-                  </a>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      
-      {/* Confirmation Dialog */}
-      {showConfirmation && (
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Confirm Deletion</h3>
-            <p className="text-sm text-gray-500 mb-6">
-              Are you sure you want to delete {selectedPapers.length} selected paper(s)? 
-              This action cannot be undone.
-            </p>
-            <div className="flex justify-end space-x-4">
-              <button
-                onClick={cancelDelete}
-                disabled={isDeleting}
-                className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmDelete}
-                disabled={isDeleting}
-                className={`px-4 py-2 rounded ${
-                  isDeleting
+
+        {/* Error display */}
+        {error && (
+          <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-md">
+            {error}
+            <button
+              onClick={() => setError(null)}
+              className="ml-2 text-sm underline"
+            >
+              Dismiss
+            </button>
+          </div>
+        )}
+
+        {/* Show empty state */}
+        {papers.length === 0 && (
+          <div className="bg-white p-6 text-center border rounded-lg">
+            <p className="text-gray-600">No papers have been uploaded yet.</p>
+          </div>
+        )}
+
+        {/* Papers list */}
+        {papers.length > 0 && (
+          <div className="border rounded-lg overflow-hidden">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Select
+                  </th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Title
+                  </th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Authors
+                  </th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Year
+                  </th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {papers.map((paper) => (
+                  <tr key={paper.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <input
+                        type="checkbox"
+                        checked={selectedPapers.includes(paper.id)}
+                        onChange={() => togglePaperSelection(paper.id)}
+                        className="h-4 w-4 text-blue-600 rounded"
+                      />
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="text-sm font-medium text-gray-900">{paper.title}</div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="text-sm text-gray-500">{formatAuthors(paper.authors)}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-500">{paper.publication_year || 'Unknown'}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <a
+                        href={api.getPaperDownloadUrl(paper.id)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:text-blue-900 mr-4"
+                      >
+                        Download
+                      </a>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {/* Confirmation Dialog */}
+        {showConfirmation && (
+          <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-lg p-6 max-w-md w-full">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Confirm Deletion</h3>
+              <p className="text-sm text-gray-500 mb-6">
+                Are you sure you want to delete {selectedPapers.length} selected paper(s)?
+                This action cannot be undone.
+              </p>
+              <div className="flex justify-end space-x-4">
+                <button
+                  onClick={cancelDelete}
+                  disabled={isDeleting}
+                  className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  disabled={isDeleting}
+                  className={`px-4 py-2 rounded ${isDeleting
                     ? 'bg-red-400 cursor-not-allowed'
                     : 'bg-red-600 text-white hover:bg-red-700'
-                }`}
-              >
-                {isDeleting ? 'Deleting...' : 'Delete'}
-              </button>
+                    }`}
+                >
+                  {isDeleting ? 'Deleting...' : 'Delete'}
+                </button>
             </div>
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 };

@@ -112,6 +112,7 @@ backend/storage/papers/*.pdf
 
 backend/models
 
-storage/vector_db
+backend/storage/
+backend/storage/index_backup_info.json
 
 *.npy

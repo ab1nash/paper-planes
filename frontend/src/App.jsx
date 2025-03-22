@@ -216,7 +216,9 @@ const App = () => {
         )}
 
         {activeTab === 'manage' && (
-          <PaperList onDeleteSuccess={(message) => showNotification('success', message)} />
+          <PaperList
+            onMessage={(notification) => showNotification(notification.type, notification.message)}
+          />
         )}
       </main>
       
