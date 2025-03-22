@@ -4,6 +4,7 @@ const UploadForm = ({ onUpload, isUploading }) => {
   const [file, setFile] = useState(null);
   const [extractMetadata, setExtractMetadata] = useState(true);
   const [useCustomMetadata, setUseCustomMetadata] = useState(false);
+  const [useParagraphProcessing, setUseParagraphProcessing] = useState(true);
   const [customMetadata, setCustomMetadata] = useState({
     title: '',
     authors: [],
@@ -52,8 +53,8 @@ const UploadForm = ({ onUpload, isUploading }) => {
       formData.append('custom_metadata', JSON.stringify(cleanedMetadata));
     }
     
-    // Call the upload function from props
-    onUpload(formData);
+    // Call the upload function from props with paragraph flag
+    onUpload(formData, useParagraphProcessing);
   };
   
   // Handle custom metadata changes
@@ -310,6 +311,25 @@ const UploadForm = ({ onUpload, isUploading }) => {
           </div>
         )}
         
+        {/* Paragraph Processing Toggle */}
+        <div className="mb-4">
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              id="use-paragraphs"
+              checked={useParagraphProcessing}
+              onChange={(e) => setUseParagraphProcessing(e.target.checked)}
+              className="h-4 w-4 text-blue-600 rounded"
+            />
+            <label htmlFor="use-paragraphs" className="ml-2 text-sm text-gray-700">
+              Process at paragraph level for more precise search
+            </label>
+            <div className="ml-2">
+              <span className="inline-block rounded-full w-4 h-4 bg-gray-200 text-gray-600 text-xs font-bold text-center cursor-help" title="Processing at paragraph level breaks the paper into sections and paragraphs, enabling more precise search results.">?</span>
+            </div>
+          </div>
+        </div>
+
         {/* Submit Button */}
         <div className="mt-6">
           <button

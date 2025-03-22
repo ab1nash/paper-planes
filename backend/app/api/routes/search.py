@@ -1,14 +1,15 @@
 from fastapi import APIRouter, Depends, HTTPException
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 
 from app.core.models import SearchRequest, SearchResponse
 from app.services.search_service import search_service
+from app.services.search_service_paragraph import paragraph_search_service
 
 router = APIRouter(prefix="/search", tags=["search"])
 
 
 @router.post("", response_model=SearchResponse)
-async def search_papers(search_request: SearchRequest):
+async def search_papers(search_request: SearchRequest,  use_paragraphs: Optional[bool] = False):
     """
     Search for papers based on a natural language query.
     
@@ -21,8 +22,11 @@ async def search_papers(search_request: SearchRequest):
     if not search_request.query.strip():
         raise HTTPException(status_code=400, detail="Search query cannot be empty")
     
-    # Perform search
-    results = await search_service.search_papers(search_request)
+    if use_paragraphs:
+        results = await paragraph_search_service.search_papers(search_request)
+    else:
+        results = await search_service.search_papers(search_request)
+    
     
     return results
 

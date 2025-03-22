@@ -7,6 +7,7 @@ from pydantic import BaseModel
 
 from app.core.models import PaperIngestionRequest, PaperIngestionResponse, PaperMetadata
 from app.services.ingestion_service import ingestion_service
+from app.services.ingestion_service_paragraph import paragraph_ingestion_service
 from app.db.metadata_db import metadata_db
 
 router = APIRouter(prefix="/papers", tags=["papers"])
@@ -39,7 +40,8 @@ async def list_papers(
 async def upload_paper(
     file: UploadFile = File(...),
     extract_metadata: bool = Form(True),
-    custom_metadata: Optional[str] = Form(None)
+    custom_metadata: Optional[str] = Form(None),
+    use_paragraphs: bool = Form(False)
 ):
     """
     Upload and process a research paper (PDF).
@@ -69,12 +71,20 @@ async def upload_paper(
         raise HTTPException(status_code=413, detail="File too large (max 20 MB)")
     
     # Process the paper
-    result = await ingestion_service.ingest_paper(
-        file_content=file_content,
-        filename=file.filename,
-        extract_metadata=extract_metadata,
-        custom_metadata=parsed_metadata
-    )
+    if use_paragraphs:
+        result = await paragraph_ingestion_service.ingest_paper(
+            file_content=file_content,
+            filename=file.filename,
+            extract_metadata=extract_metadata,
+            custom_metadata=parsed_metadata
+        )
+    else:
+        result = await ingestion_service.ingest_paper(
+            file_content=file_content,
+            filename=file.filename,
+            extract_metadata=extract_metadata,
+            custom_metadata=parsed_metadata
+        )
     
     if not result.success:
         raise HTTPException(status_code=500, detail=result.message)

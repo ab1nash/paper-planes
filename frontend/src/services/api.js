@@ -45,7 +45,11 @@ const api = {
    * @returns {Promise<Object>} Search results
    */
   search: async (searchRequest) => {
-    const response = await fetch(`${API_BASE_URL}/search`, {
+
+    const { useParagraphs, ...requestParams } = searchRequest;
+    const queryParam = useParagraphs ? '?use_paragraphs=true' : '';
+
+    const response = await fetch(`${API_BASE_URL}/search${queryParam}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

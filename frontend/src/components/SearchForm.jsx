@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 const SearchForm = ({ onSearch, isLoading }) => {
   const [query, setQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
+  const [useParagraphs, setUseParagraphs] = useState(true);
   const [filters, setFilters] = useState({
     year_min: '',
     year_max: '',
@@ -25,7 +26,8 @@ const SearchForm = ({ onSearch, isLoading }) => {
           keywords: filters.keywords.length > 0 ? filters.keywords : null,
           conference: filters.conference || null,
           journal: filters.journal || null
-        }
+        },
+        useParagraphs
       });
     }
   };
@@ -107,6 +109,24 @@ const SearchForm = ({ onSearch, isLoading }) => {
           </button>
         </div>
         
+        {/* Toggle for paragraph search */}
+        <div className="mt-2 flex items-center">
+          <label className="inline-flex items-center">
+            <input
+              type="checkbox"
+              className="form-checkbox h-4 w-4 text-blue-600"
+              checked={useParagraphs}
+              onChange={(e) => setUseParagraphs(e.target.checked)}
+            />
+            <span className="ml-2 text-sm text-gray-700">
+              Search at paragraph level
+            </span>
+          </label>
+          <div className="ml-2">
+            <span className="inline-block rounded-full w-4 h-4 bg-gray-200 text-gray-600 text-xs font-bold text-center cursor-help" title="Paragraph search matches content within specific paragraphs rather than entire documents. This provides more precise results and highlights matching passages.">?</span>
+          </div>
+        </div>
+
         <div className="mt-4 flex justify-between items-center">
           <button
             type="button"

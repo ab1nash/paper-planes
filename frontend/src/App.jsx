@@ -15,6 +15,7 @@ const App = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [notification, setNotification] = useState(null);
+  const [useParagraphs, setUseParagraphs] = useState(false);
   
   /**
    * Handle search submission
@@ -25,7 +26,16 @@ const App = () => {
       setIsSearching(true);
       setSearchResults(null);
       
-      const results = await api.search(searchRequest);
+      // Store paragraph search mode for display
+      setUseParagraphs(searchRequest.useParagraphs);
+
+      // Send search request to API with paragraph flag
+      const results = await api.search({
+        query: searchRequest.query,
+        filters: searchRequest.filters,
+        useParagraphs: searchRequest.useParagraphs
+      });
+
       setSearchResults(results);
     } catch (error) {
       showNotification('error', `Search failed: ${error.message}`);
@@ -37,14 +47,21 @@ const App = () => {
   /**
    * Handle paper upload
    * @param {FormData} formData - Form data with file and metadata
+   * @param {boolean} useParagraphs - Whether to process at paragraph level
    */
-  const handleUpload = async (formData) => {
+  const handleUpload = async (formData, useParagraphProcessing) => {
     try {
       setIsUploading(true);
       
+      // Add paragraph flag to form data
+      formData.append('use_paragraphs', useParagraphProcessing);
+
       const result = await api.uploadPaper(formData);
       
-      showNotification('success', `Paper "${result.metadata.title}" uploaded successfully`);
+      const paragraphMsg = useParagraphProcessing ?
+        ` with ${result.message || 'paragraph-level processing'}` : '';
+
+      showNotification('success', `Paper "${result.metadata.title}" uploaded successfully${paragraphMsg}`);
       
       // Reset upload form (implementation depends on your form design)
       // You might need to pass a callback to the UploadForm component
@@ -161,12 +178,27 @@ const App = () => {
             )}
             
             {!isSearching && searchResults && (
-              <ResultList 
-                results={searchResults.results} 
-                totalCount={searchResults.total_count}
-                query={searchResults.query}
-                executionTime={searchResults.execution_time_ms}
-              />
+              <>
+                {/* Search mode indicator */}
+                {useParagraphs && (
+                  <div className="mb-4 px-4 py-2 bg-blue-50 text-blue-700 rounded-md flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                    </svg>
+                    <span>
+                      Results are using paragraph-level search, showing the most relevant passages from each paper.
+                    </span>
+                  </div>
+                )}
+
+                <ResultList
+                  results={searchResults.results}
+                  totalCount={searchResults.total_count}
+                  query={searchResults.query}
+                  executionTime={searchResults.execution_time_ms}
+                  useParagraphs={useParagraphs}
+                />
+              </>
             )}
             
             {!isSearching && !searchResults && (

@@ -43,6 +43,25 @@ class SearchFilter(BaseModel):
     journal: Optional[str] = None
 
 
+class ParagraphMatch(BaseModel):
+    """A matching paragraph from a search result."""
+    text: str
+    score: float
+    section: Optional[str] = None
+    paragraph_index: int
+    context: Optional[str] = None
+
+
+class ParagraphMetadata(BaseModel):
+    """Metadata for a paragraph extracted from a paper."""
+    paper_id: str
+    paragraph_index: int
+    section: str
+    text: str
+    is_header: bool = False
+    line_num: Optional[int] = None
+
+
 class SearchRequest(BaseModel):
     """Request model for search endpoint."""
     query: str
@@ -66,6 +85,9 @@ class SearchResultItem(BaseModel):
     conference: Optional[str] = None
     journal: Optional[str] = None
     keywords: Optional[List[str]] = None
+
+    # Matching paragraphs
+    matching_paragraphs: Optional[List[ParagraphMatch]] = None
     
 
 class SearchResponse(BaseModel):
