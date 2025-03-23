@@ -106,9 +106,7 @@ const ResultList = ({ results, totalCount, query, executionTime, useParagraphs =
                   <div className="mb-3">
                     <h4 className="text-sm font-semibold text-gray-700 mb-1">Abstract</h4>
                     <p className="text-sm text-gray-600">
-                      {useParagraphs
-                        ? highlightText(result.abstract, query)
-                        : result.abstract}
+                      {highlightText(result.abstract, query)}
                     </p>
                   </div>
                 )}
@@ -130,11 +128,11 @@ const ResultList = ({ results, totalCount, query, executionTime, useParagraphs =
                   </div>
                 )}
                 
-                {/* Matching Paragraphs - Only shown for paragraph search */}
+                {/* Matching Paragraphs - Shown when paragraphs are available */}
                 {useParagraphs && result.matching_paragraphs && result.matching_paragraphs.length > 0 && (
                   <div className="mb-3">
                     <h4 className="text-sm font-semibold text-gray-700 mb-1">
-                      Matching Paragraphs
+                      Matching Passages
                     </h4>
                     <div className="space-y-3 mt-2">
                       {/* Show first paragraphs or all based on expanded state */}
@@ -171,14 +169,14 @@ const ResultList = ({ results, totalCount, query, executionTime, useParagraphs =
                               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
                               </svg>
-                              Show fewer paragraphs
+                              Show fewer passages
                             </>
                           ) : (
                             <>
                               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                               </svg>
-                              Show {result.matching_paragraphs.length - 2} more matching paragraphs
+                                Show {result.matching_paragraphs.length - 2} more matching passages
                             </>
                           )}
                         </button>
@@ -186,20 +184,6 @@ const ResultList = ({ results, totalCount, query, executionTime, useParagraphs =
                     </div>
                   </div>
                 )}
-
-                {/* Paragraph Context - Only shown when viewing a specific paragraph */}
-                {useParagraphs && expandedParagraphs[result.paper_id] && result.matching_paragraphs &&
-                  result.matching_paragraphs.some(p => p.context && p.context !== p.text) && (
-                    <div className="mb-3">
-                      <div className="flex items-center mb-1">
-                        <h4 className="text-sm font-semibold text-gray-700">Paragraph Context</h4>
-                        <span className="ml-2 text-xs text-gray-500">(Surrounding paragraphs for better understanding)</span>
-                      </div>
-                      <div className="bg-gray-100 p-3 rounded-md text-sm text-gray-700 whitespace-pre-wrap">
-                        {result.matching_paragraphs[0].context}
-                      </div>
-                    </div>
-                  )}
 
                 {/* Download Button */}
                 <div className="flex justify-end mt-3">

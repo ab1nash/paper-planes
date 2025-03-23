@@ -5,28 +5,20 @@ import UploadForm from './components/UploadForm';
 import PaperList from './components/PaperList';
 import api from './services/api';
 
-/**
- * Main application component
- */
 const App = () => {
-  // Application state
   const [activeTab, setActiveTab] = useState('search');
   const [searchResults, setSearchResults] = useState(null);
   const [isSearching, setIsSearching] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [notification, setNotification] = useState(null);
   const [useParagraphs, setUseParagraphs] = useState(false);
-  
-  /**
-   * Handle search submission
-   * @param {Object} searchRequest - Search parameters
-   */
+
   const handleSearch = async (searchRequest) => {
     try {
       setIsSearching(true);
       setSearchResults(null);
       
-      // Store paragraph search mode for display
+      // Store paragraph search mode for result display
       setUseParagraphs(searchRequest.useParagraphs);
 
       // Send search request to API with paragraph flag
@@ -43,12 +35,7 @@ const App = () => {
       setIsSearching(false);
     }
   };
-  
-  /**
-   * Handle paper upload
-   * @param {FormData} formData - Form data with file and metadata
-   * @param {boolean} useParagraphs - Whether to process at paragraph level
-   */
+
   const handleUpload = async (formData, useParagraphProcessing) => {
     try {
       setIsUploading(true);
@@ -62,21 +49,13 @@ const App = () => {
         ` with ${result.message || 'paragraph-level processing'}` : '';
 
       showNotification('success', `Paper "${result.metadata.title}" uploaded successfully${paragraphMsg}`);
-      
-      // Reset upload form (implementation depends on your form design)
-      // You might need to pass a callback to the UploadForm component
     } catch (error) {
       showNotification('error', `Upload failed: ${error.message}`);
     } finally {
       setIsUploading(false);
     }
   };
-  
-  /**
-   * Display a notification message
-   * @param {string} type - Notification type ('success', 'error', 'info')
-   * @param {string} message - Notification message
-   */
+
   const showNotification = (type, message) => {
     setNotification({ type, message });
     
@@ -85,10 +64,7 @@ const App = () => {
       setNotification(null);
     }, 5000);
   };
-  
-  /**
-   * Dismiss the current notification
-   */
+
   const dismissNotification = () => {
     setNotification(null);
   };
@@ -186,7 +162,7 @@ const App = () => {
                       <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                     </svg>
                     <span>
-                      Results are using paragraph-level search, showing the most relevant passages from each paper.
+                      Paragraph search is active: showing both document matches and specific passages where relevant.
                     </span>
                   </div>
                 )}
@@ -229,7 +205,6 @@ const App = () => {
             <p className="text-sm text-gray-500 mr-3">
               paper-planes - 2025
             </p>
-            {/* Indian Flag Image */}
             <div className="h-6 w-9 shadow-sm border border-gray-200 rounded overflow-hidden">
               <img
                 src="https://flagcdn.com/h40/in.png"

@@ -213,22 +213,25 @@ class IngestionService:
         return chunks
 
     def delete_paper(self, paper_id: str) -> bool:
-        """Delete a paper from the system.
-        
-        Args:
-            paper_id: ID of the paper to delete
-            
-        Returns:
-            True if deleted successfully, False otherwise
-        """
         try:
             # Get paper details from metadata DB
             paper = metadata_db.get_paper(paper_id)
             if not paper:
                 return False
 
-            # Delete from vector DB
-            get_vector_db().delete_document(paper_id)
+            # Get the vector database
+            vector_db = get_vector_db()
+            
+            # Check if this paper has paragraph chunks by checking for 'paragraph_count'
+            paragraph_count = paper.get('paragraph_count', 0)
+            if paragraph_count > 0:
+                # Delete all paragraph chunks
+                for i in range(paragraph_count):
+                    chunk_id = f"{paper_id}_{i}"
+                    vector_db.delete_document(chunk_id)
+            
+            # Also try to delete the document with the paper_id (for non-paragraph indexing)
+            vector_db.delete_document(paper_id)
 
             # Delete from metadata DB
             metadata_db.delete_paper(paper_id)
@@ -239,7 +242,6 @@ class IngestionService:
                 os.remove(file_path)
 
             return True
-
         except Exception as e:
             print(f"Error deleting paper {paper_id}: {e}")
             return False

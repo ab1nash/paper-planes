@@ -159,42 +159,6 @@ class ParagraphIngestionService(IngestionService):
                 success=False,
                 message=f"Error ingesting paper: {str(e)}"
             )
-        
-    async def delete_paper(self, paper_id: str) -> bool:
-        """Delete a paper and all its paragraphs from the system.
-        
-        Overrides the base method to handle paragraph deletion.
-        """
-        try:
-            # Get paper details from metadata DB
-            paper = metadata_db.get_paper(paper_id)
-            if not paper:
-                logger.warning(f"Paper {paper_id} not found for deletion")
-                return False
-
-            # Get the vector database
-            vector_db = get_vector_db()
-            
-            # Delete all paragraph chunks
-            deleted_chunks = 0
-            for i in range(paper.get('paragraph_count', 0)):
-                chunk_id = f"{paper_id}_{i}"
-                if vector_db.delete_document(chunk_id):
-                    deleted_chunks += 1
-            
-            logger.info(f"Deleted {deleted_chunks} paragraph chunks for paper {paper_id}")
-
-            result = await super().delete_paper(paper_id)
-            
-            if result:
-                logger.info(f"Successfully deleted paper {paper_id} and all its paragraphs")
-            
-            return result
-
-        except Exception as e:
-            logger.error(f"Error deleting paper {paper_id}: {e}")
-            return False
-
 
 # Create a singleton instance
 paragraph_ingestion_service = ParagraphIngestionService()

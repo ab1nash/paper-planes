@@ -22,13 +22,14 @@ async def search_papers(search_request: SearchRequest,  use_paragraphs: Optional
     if not search_request.query.strip():
         raise HTTPException(status_code=400, detail="Search query cannot be empty")
     
+    doc_level_response = await search_service.search_papers(search_request)
     if use_paragraphs:
-        results = await paragraph_search_service.search_papers(search_request)
-    else:
-        results = await search_service.search_papers(search_request)
+        paragraph_level_response = await paragraph_search_service.search_papers(search_request)
+        doc_level_response.results += [*paragraph_level_response.results]
+        doc_level_response.total_count = len(doc_level_response.results)
+
     
-    
-    return results
+    return doc_level_response
 
 
 @router.get("/filter-options")

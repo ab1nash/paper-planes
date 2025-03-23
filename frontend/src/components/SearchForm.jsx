@@ -103,7 +103,7 @@ const SearchForm = ({ onSearch, isLoading }) => {
           <button
             type="submit"
             disabled={isLoading}
-            className="px-4 py-2 rounded-r-md bg-gray-600 text-white"
+            className="px-4 py-2 rounded-r-md bg-blue-600 text-white hover:bg-blue-700"
           >
             {isLoading ? 'Searching...' : 'Search'}
           </button>
@@ -119,11 +119,16 @@ const SearchForm = ({ onSearch, isLoading }) => {
               onChange={(e) => setUseParagraphs(e.target.checked)}
             />
             <span className="ml-2 text-sm text-gray-700">
-              Search at paragraph level
+              Enable paragraph search (adds passage-level matches)
             </span>
           </label>
           <div className="ml-2">
-            <span className="inline-block rounded-full w-4 h-4 bg-gray-200 text-gray-600 text-xs font-bold text-center cursor-help" title="Paragraph search matches content within specific paragraphs rather than entire documents. This provides more precise results and highlights matching passages.">?</span>
+            <span
+              className="inline-block rounded-full w-4 h-4 bg-gray-200 text-gray-600 text-xs font-bold text-center cursor-help"
+              title="When enabled, search will include both document-level matches and paragraph-level matches, providing more precise results with relevant passages highlighted."
+            >
+              ?
+            </span>
           </div>
         </div>
 
@@ -228,7 +233,7 @@ const SearchForm = ({ onSearch, isLoading }) => {
                     addAuthorFilter(input.value);
                     input.value = '';
                   }}
-                  className="px-3 py-2 bg-gray-200 text-gray-800 rounded-r-md"
+                  className="px-3 py-2 bg-gray-200 text-gray-800 rounded-r-md hover:bg-gray-300"
                 >
                   Add
                 </button>
@@ -280,7 +285,7 @@ const SearchForm = ({ onSearch, isLoading }) => {
                     addKeywordFilter(input.value);
                     input.value = '';
                   }}
-                  className="px-3 py-2 bg-gray-200 text-gray-800 rounded-r-md"
+                  className="px-3 py-2 bg-gray-200 text-gray-800 rounded-r-md hover:bg-gray-300"
                 >
                   Add
                 </button>
