@@ -109,7 +109,8 @@ class IngestionService:
             metadata_dict = metadata.dict(exclude_none=True)
             metadata_dict.update({
                 "filename": filename,
-                "file_path": str(file_path)
+                "file_path": str(file_path),
+                "paragraph_count": 0
             })
 
             metadata_db.add_paper({

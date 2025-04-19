@@ -25,7 +25,8 @@ class MetadataDB:
         self.conn = None
         self._connect()
         self._create_tables()
-    
+
+
     def _connect(self):
         """Connect to the SQLite database."""
         self.conn = sqlite3.connect(self.db_path, check_same_thread=False)
@@ -33,7 +34,8 @@ class MetadataDB:
         self.conn.execute("PRAGMA foreign_keys = ON")
         # Return rows as dictionaries
         self.conn.row_factory = sqlite3.Row
-    
+
+
     def _create_tables(self):
         """Create database tables if they don't exist."""
         cursor = self.conn.cursor()
@@ -51,6 +53,7 @@ class MetadataDB:
             journal TEXT,
             filename TEXT NOT NULL,
             file_path TEXT NOT NULL,
+            paragraph_count INTEGER,
             ingestion_date TIMESTAMP NOT NULL,
             last_updated TIMESTAMP NOT NULL
         )
@@ -103,7 +106,8 @@ class MetadataDB:
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_papers_journal ON papers(journal)')
         
         self.conn.commit()
-    
+
+
     def add_paper(self, paper_data: Dict[str, Any]) -> str:
         """Add a new paper to the database.
         
@@ -125,8 +129,8 @@ class MetadataDB:
         cursor.execute('''
         INSERT INTO papers 
         (id, title, abstract, publication_year, doi, url, conference, journal, 
-         filename, file_path, ingestion_date, last_updated)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+         filename, file_path, paragraph_count, ingestion_date, last_updated)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
             paper_id,
             paper_data['title'],
@@ -138,6 +142,7 @@ class MetadataDB:
             paper_data.get('journal'),
             paper_data['filename'],
             paper_data['file_path'],
+            paper_data['paragraph_count'],
             now,
             now
         ))
@@ -150,7 +155,8 @@ class MetadataDB:
         
         self.conn.commit()
         return paper_id
-    
+
+
     def _add_authors(self, paper_id: str, authors: List[str]) -> None:
         """Add authors for a paper.
         
@@ -174,7 +180,8 @@ class MetadataDB:
             cursor.execute('''
             INSERT INTO paper_authors (paper_id, author_id) VALUES (?, ?)
             ''', (paper_id, author_id))
-    
+
+
     def _add_keywords(self, paper_id: str, keywords: List[str]) -> None:
         """Add keywords for a paper.
         
@@ -198,7 +205,8 @@ class MetadataDB:
             cursor.execute('''
             INSERT INTO paper_keywords (paper_id, keyword_id) VALUES (?, ?)
             ''', (paper_id, keyword_id))
-    
+
+
     def get_paper(self, paper_id: str) -> Optional[Dict[str, Any]]:
         """Get paper details by ID.
         
@@ -242,6 +250,7 @@ class MetadataDB:
         
         return paper
     
+
     def search_papers(self, filters: Dict[str, Any], limit: int = 10, offset: int = 0) -> Tuple[List[Dict[str, Any]], int]:
         """Search for papers using metadata filters.
         
@@ -358,7 +367,8 @@ class MetadataDB:
             papers.append(paper)
         
         return papers, total_count
-    
+
+
     def delete_paper(self, paper_id: str) -> bool:
         """Delete a paper from the database.
         
@@ -380,7 +390,8 @@ class MetadataDB:
         self.conn.commit()
         
         return True
-    
+
+
     def get_all_authors(self) -> List[str]:
         """Get a list of all authors in the database.
         
@@ -390,7 +401,8 @@ class MetadataDB:
         cursor = self.conn.cursor()
         cursor.execute('SELECT name FROM authors ORDER BY name')
         return [row[0] for row in cursor.fetchall()]
-    
+
+
     def get_all_keywords(self) -> List[str]:
         """Get a list of all keywords in the database.
         
@@ -400,7 +412,8 @@ class MetadataDB:
         cursor = self.conn.cursor()
         cursor.execute('SELECT keyword FROM keywords ORDER BY keyword')
         return [row[0] for row in cursor.fetchall()]
-    
+
+
     def get_publication_years(self) -> List[int]:
         """Get a list of all publication years in the database.
         
@@ -415,7 +428,8 @@ class MetadataDB:
         ORDER BY publication_year DESC
         ''')
         return [row[0] for row in cursor.fetchall()]
-    
+
+
     def get_conferences(self) -> List[str]:
         """Get a list of all conferences in the database.
         
@@ -430,7 +444,8 @@ class MetadataDB:
         ORDER BY conference
         ''')
         return [row[0] for row in cursor.fetchall()]
-    
+
+
     def get_journals(self) -> List[str]:
         """Get a list of all journals in the database.
         
@@ -445,6 +460,7 @@ class MetadataDB:
         ORDER BY journal
         ''')
         return [row[0] for row in cursor.fetchall()]
+    
     
     def close(self):
         """Close the database connection."""
